@@ -1,22 +1,9 @@
 clear;
 clc;
 
-addpath(genpath('../..'));
+% addpath(genpath('../..'));
 
-color_map_load;
-
-Summary_UQ = zeros(48,18,8,140);
-Summary_tile_set = zeros(48,8,140,10,64);
-init_set_0510;
-
-Summary_UQ_PSNR = zeros(48,8,140);
-Summary_UQ_TILE = zeros(48,8,140);
-
-Xopt_sum = zeros(300,384);
-
-load("N_PSNR.mat");
-
-W_S = zeros(160,8,8);
+Renewal_init;
 
 for video_type = 1:2
     
@@ -24,36 +11,38 @@ for video_type = 1:2
     tile_info_name = strcat("tile_",type_num,".mat");
     load(tile_info_name);
     
-    for video_index = 6:9
+    for video_index = 1:9
     
         video_num = string(video_index);
         
         video_count = (video_type - 1) * 9 + video_index;
         
-        for persion = 1:45
+        for person = 1:45
         
-            I_I = string(persion);
+            person_index = string(person);
             
             file_name = strcat(type_num,"_",video_num);
              %saliency loading
             Saliency_table_location = strcat("saliency/",file_name,".mat");
             
             load(Saliency_table_location);
-            
-            video_num2 = string(video_index-1);
-            
-            LR_Data_name = strcat("DATA/E_tile/",type_num,"_",I_I,"_",video_num2,".mat");
-            load(LR_Data_name);
-            
-            E_FOV_Data_name = strcat("DATA/E_FOV/",type_num,"_",I_I,"_",video_num2,".mat");
-            load(E_FOV_Data_name);
-            
-            FOV_Data_name = strcat("DATA/FOV/",type_num,"_",I_I,"_",video_num2,".mat");
-            load(FOV_Data_name);
-                        
+
             for i = 1:160
                 W_S(i,:,:) = cell2mat(grid_sums(1,i));
             end
+            
+            file_video_num = string(video_index-1);
+
+            data_set_name = strcat(type_num,"_",person_index,"_",file_video_num,".mat");
+            
+            LR_Data_name = strcat("DATA/E_tile/",data_set_name);
+            E_FOV_Data_name = strcat("DATA/E_FOV/",data_set_name);
+            FOV_Data_name = strcat("DATA/FOV/",data_set_name);
+
+            load(LR_Data_name);
+            load(E_FOV_Data_name);
+            load(FOV_Data_name); 
+                       
             
             %PSNR loading
             Q_PSNR = squeeze(PSNR(video_count,:,:,:,:));
@@ -65,20 +54,20 @@ for video_type = 1:2
             end
             
             %view_port GT load
-            tile = squeeze(tile_Index((persion-1)*9+video_index,1:140,:,:));
+            tile = squeeze(tile_Index((person-1)*9+video_index,1:140,:,:));
             
             for Network = 1:8
                 video_count
-                persion
+                person
                 Network
                 
                 BWorigin = Network * 5000;
                 BW = BWorigin;
-                
+                %%test sequence
                 LY_LR;
 
-                Summary_UQ_PSNR(persion,Network,:) = UQ_opt;
-                Summary_UQ_TILE(persion,Network,:) = UQ_LEVEL_opt;
+                Summary_UQ_PSNR(person,Network,:) = UQ_opt;
+                Summary_UQ_TILE(person,Network,:) = UQ_LEVEL_opt;
 
                 clearvars UQ_opt UQ_LEVEL_opt;
             end
@@ -93,5 +82,8 @@ for video_type = 1:2
         clearvars Summary_UQ_PSNR Summary_UQ_TILE;
             
     end
+    
+    clearvars tile_Index;
+
 end
 

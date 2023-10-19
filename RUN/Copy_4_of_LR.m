@@ -74,7 +74,7 @@ for video_type = 1:2
                 
                 BWorigin = Network * 5000;
                 BW = BWorigin;
-                
+                %%test sequence
                 LY_LR;
 
                 Summary_UQ_PSNR(persion,Network,:) = UQ_opt;
